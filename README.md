@@ -38,7 +38,7 @@ This is a simple console-based student grading app I developed to practice C# fu
 
 ## License / الترخيص
 This project is licensed under the **MIT License**.  
-You can freely use, modify, and share it, but please give credit to **Mohamed Gonem / محمد غنيم**.  
+You can freely use, modify, and share it, but please give credit to **Mohamed Gonem**.  
 
 هذا المشروع مرخّص بموجب **رخصة MIT**.  
-يمكنك استخدام البرنامج، تعديله، ومشاركته بحرية، مع ذكر الإشارة إلى **محمد غنيم / Mohamed Gonem** كمطور.
+يمكنك استخدام البرنامج، تعديله، ومشاركته بحرية، مع ذكر الإشارة إلى **محمد غنيم* كمطور.
