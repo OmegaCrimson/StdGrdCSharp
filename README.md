@@ -41,4 +41,4 @@ This project is licensed under the **MIT License**.
 You can freely use, modify, and share it, but please give credit to **Mohamed Gonem**.  
 
 هذا المشروع مرخّص بموجب **رخصة MIT**.  
-يمكنك استخدام البرنامج، تعديله، ومشاركته بحرية، مع ذكر الإشارة إلى **محمد غنيم* كمطور.
+يمكنك استخدام البرنامج، تعديله، ومشاركته بحرية، مع ذكر الإشارة إلى **محمد غنيم** كمطور.
