@@ -1,0 +1,9 @@
+{
+  "types": [
+    { "type": "feat", "section": "✨ Features" },
+    { "type": "fix", "section": "🐛 Fixes" },
+    { "type": "docs", "section": "📝 Docs" },
+    { "type": "refactor", "section": "🔧 Refactors" },
+    { "type": "chore", "hidden": true }
+  ]
+}
