@@ -3,10 +3,10 @@ name: Build and Release
 on:
   push:
     tags:
-      - 'v*'  # Triggers only on version tags like v1.0.0
+      - 'v*'
 
 permissions:
-  contents: write  # Required to create releases and upload assets
+  contents: write
 
 jobs:
   build:
@@ -28,7 +28,7 @@ jobs:
       run: dotnet build --no-restore --configuration Release
 
     - name: Publish
-      run: dotnet publish -c Release -o publish
+      run: dotnet publish StudentGrader.csproj -c Release -o publish
 
     - name: Zip output
       run: zip -r StudentGrader.zip publish/
