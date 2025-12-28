@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 2.0.6 (2025-12-28)
+
+
+### 🐛 Fixes
+
+* testing for tag ([fc00bc7](https://github.com/OmegaCrimson/StudentGrader-CSharp/commit/fc00bc788f31ab645fded3e616fb0cd365875a67))
+
 ### 2.0.5 (2025-12-24)
 
 
