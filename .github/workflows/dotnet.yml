@@ -1,7 +1,7 @@
-name: Auto Semantic Release
+name: Manual Versioned Release Pipeline
 
 on:
-  workflow-dispatch:
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -11,52 +11,68 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: 📥 Checkout code
       uses: actions/checkout@v3
 
-    - name: Setup Node.js
+    - name: 🟢 Setup Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '20'
 
-    - name: Install standard-version
+    - name: 📦 Install dependencies
       run: npm install
 
-    - name: Run standard-version
+    - name: 🏷️ Run semantic versioning
       run: |
         git config user.name "github-actions"
         git config user.email "github-actions@github.com"
-        npx standard-version
-        git push --follow-tags origin main
+        npm run release || echo "No new version published"
+        git push --follow-tags origin main || echo "No changes to push"
 
-    - name: Setup .NET
+    - name: 🛠️ Setup .NET SDK
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '8.0.x'
 
-    - name: Restore dependencies
+    - name: 🔄 Restore dependencies
       run: dotnet restore
 
-    - name: Build
+    - name: 🧱 Build project
       run: dotnet build --no-restore --configuration Release
 
-    - name: Publish cross-platform
+    - name: 🚀 Publish cross-platform build
       run: dotnet publish StudentGrader.csproj -c Release -o publish
 
-    - name: Publish Windows .exe
+    - name: 🪟 Publish Windows .exe (self-contained)
       run: dotnet publish StudentGrader.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o win-publish
 
-    - name: Zip builds
+    - name: 📦 Zip artifacts
       run: |
         zip -r StudentGrader.zip publish/
         zip -r StudentGrader-win.zip win-publish/
 
-    - name: Install GitHub CLI
+    - name: 📤 Upload cross-platform artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: StudentGrader-CrossPlatform
+        path: publish/
+
+    - name: 📤 Upload Windows artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: StudentGrader-Windows
+        path: win-publish/
+
+    - name: 🧰 Install GitHub CLI
       run: sudo apt-get install gh
 
-    - name: Create GitHub Release
+    - name: 📝 Create GitHub Release
       run: |
-        TAG=$(git describe --tags --abbrev=0)
+        TAG=$(git describe --tags --abbrev=0 || echo "")
+        if [ -z "$TAG" ]; then
+          echo "No tag found. Skipping release."
+          exit 0
+        fi
         gh auth setup-git
         gh release create "$TAG" StudentGrader.zip StudentGrader-win.zip \
           --title "Student Grader $TAG" \
