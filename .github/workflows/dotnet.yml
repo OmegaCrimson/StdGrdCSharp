@@ -2,6 +2,11 @@ name: Manual Versioned Release Pipeline
 
 on:
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Run without pushing or releasing'
+        required: false
+        default: 'false'
 
 permissions:
   contents: write
@@ -11,71 +16,93 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: 📥 Checkout code
+    - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: 🟢 Setup Node.js
+    - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '20'
 
-    - name: 📦 Install dependencies
+    - name: Install dependencies
       run: npm install
 
-    - name: 🏷️ Run semantic versioning
+    - name: Run semantic versioning
       run: |
         git config user.name "github-actions"
         git config user.email "github-actions@github.com"
         npm run release || echo "No new version published"
-        git push --follow-tags origin main || echo "No changes to push"
+        if [ "${{ github.event.inputs.dry_run }}" != "true" ]; then
+          git push --follow-tags origin main || echo "No changes to push"
+        fi
 
-    - name: 🛠️ Setup .NET SDK
+    - name: Setup .NET SDK
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '8.0.x'
 
-    - name: 🔄 Restore dependencies
+    - name: Restore dependencies
       run: dotnet restore
 
-    - name: 🧱 Build project
+    - name: Run tests
+      run: dotnet test --no-build --verbosity normal
+
+    - name: Build project
       run: dotnet build --no-restore --configuration Release
 
-    - name: 🚀 Publish cross-platform build
-      run: dotnet publish StudentGrader.csproj -c Release -o publish
+    - name: Clean previous outputs
+      run: |
+        rm -rf publish win-publish *.zip
 
-    - name: 🪟 Publish Windows .exe (self-contained)
-      run: dotnet publish StudentGrader.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o win-publish
+    - name: Detect project file
+      id: detect_project
+      run: |
+        PROJECT=$(find . -name "*.csproj" | head -n 1)
+        echo "project=$PROJECT" >> $GITHUB_OUTPUT
 
-    - name: 📦 Zip artifacts
+    - name: Publish cross-platform build
+      run: dotnet publish ${{ steps.detect_project.outputs.project }} -c Release -o publish
+
+    - name: Publish Windows .exe (self-contained)
+      run: dotnet publish ${{ steps.detect_project.outputs.project }} -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o win-publish
+
+    - name: Zip artifacts
       run: |
         zip -r StudentGrader.zip publish/
         zip -r StudentGrader-win.zip win-publish/
 
-    - name: 📤 Upload cross-platform artifact
+    - name: Upload cross-platform artifact
       uses: actions/upload-artifact@v4
       with:
         name: StudentGrader-CrossPlatform
         path: publish/
 
-    - name: 📤 Upload Windows artifact
+    - name: Upload Windows artifact
       uses: actions/upload-artifact@v4
       with:
         name: StudentGrader-Windows
         path: win-publish/
 
-    - name: 🧰 Install GitHub CLI
+    - name: Install GitHub CLI
       run: sudo apt-get install gh
 
-    - name: 📝 Create GitHub Release
+    - name: Create GitHub Release
+      if: ${{ github.event.inputs.dry_run != 'true' }}
       run: |
         TAG=$(git describe --tags --abbrev=0 || echo "")
         if [ -z "$TAG" ]; then
           echo "No tag found. Skipping release."
           exit 0
         fi
-        gh auth setup-git
+
+        NOTES_FILE="CHANGELOG.md"
+        if [ ! -f "$NOTES_FILE" ]; then
+          echo "Initial release." > "$NOTES_FILE"
+        fi
+
+        echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
         gh release create "$TAG" StudentGrader.zip StudentGrader-win.zip \
           --title "Student Grader $TAG" \
-          --notes-file CHANGELOG.md
+          --notes-file "$NOTES_FILE"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
