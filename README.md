@@ -30,12 +30,6 @@ A modular, console-based student grading system built in C#.
 ![Maintained](https://img.shields.io/badge/maintained-actively-blue?style=flat-square)
 ![CLI App](https://img.shields.io/badge/interface-CLI-lightgrey?style=flat-square&logo=terminal)
 
-
-**Author:** Mohamed Gonem / محمد غنيم  
-**Version:** 2.0  
-**License:** MIT  
-**Languages:** English + Arabic digits
-
 ---
 
 ## ✨ Features
