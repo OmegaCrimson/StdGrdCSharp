@@ -1,6 +1,6 @@
 {
   "name": "student-grader",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "scripts": {
     "release": "standard-version"
   },
